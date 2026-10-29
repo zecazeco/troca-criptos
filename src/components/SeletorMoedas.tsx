@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Moeda } from '../types';
-import { buscar } from '../services/coingecko';
+import { buscar, populares } from '../services/coingecko';
 import { paresDisponiveis } from '../services/binance';
+import { passouDoLimite } from '../services/cache';
 import { temNaBinance } from '../services/precos';
-import useDebounce from '../hooks/useDebounce';
+import { filtrarMoedas } from '../lib/busca';
 import Logo from './Logo';
 
 interface SeletorMoedasProps {
@@ -15,49 +16,84 @@ interface SeletorMoedasProps {
 // btc e eth são a base da comparação, então não entram na lista
 const BASES = ['bitcoin', 'ethereum'];
 
+type ErroBusca = 'limite' | 'falha' | null;
+
+const MENSAGENS: Record<Exclude<ErroBusca, null>, string> = {
+  limite: 'A CoinGecko libera poucas buscas por minuto. Espere uns segundos e tente de novo.',
+  falha: 'Não foi possível buscar agora. Tente de novo em instantes.',
+};
+
 function SeletorMoedas({ moedas, onAdicionar, onRemover }: SeletorMoedasProps) {
   const [texto, setTexto] = useState('');
-  const [resultados, setResultados] = useState<Moeda[]>([]);
+  const [lista, setLista] = useState<Moeda[]>([]);
   const [pares, setPares] = useState<string[]>([]);
-  const [buscando, setBuscando] = useState(false);
-  const [erro, setErro] = useState(false);
   const [focado, setFocado] = useState(false);
-  const termo = useDebounce(texto, 400);
+  const [remotos, setRemotos] = useState<Moeda[] | null>(null);
+  const [buscandoRemoto, setBuscandoRemoto] = useState(false);
+  const [erro, setErro] = useState<ErroBusca>(null);
 
   useEffect(() => {
     paresDisponiveis().then(setPares).catch(() => setPares([]));
+    populares().then(setLista).catch(() => setLista([]));
   }, []);
 
+  // os resultados da busca completa valem só pro texto que foi buscado
   useEffect(() => {
-    if (termo.trim().length < 2) {
-      setResultados([]);
-      return;
+    setRemotos(null);
+    setErro(null);
+  }, [texto]);
+
+  const locais = useMemo(
+    () => filtrarMoedas(lista, texto).filter((moeda) => !BASES.includes(moeda.id)),
+    [lista, texto],
+  );
+
+  const extras = (remotos ?? []).filter(
+    (moeda) => !BASES.includes(moeda.id) && !locais.some((local) => local.id === moeda.id),
+  );
+
+  const buscarEmTodas = async () => {
+    setBuscandoRemoto(true);
+    setErro(null);
+    try {
+      setRemotos(await buscar(texto));
+    } catch (falha) {
+      setErro(passouDoLimite(falha) ? 'limite' : 'falha');
+    } finally {
+      setBuscandoRemoto(false);
     }
-
-    let ativo = true;
-    setBuscando(true);
-    setErro(false);
-
-    buscar(termo)
-      .then((lista) => {
-        if (ativo) setResultados(lista.filter((moeda) => !BASES.includes(moeda.id)));
-      })
-      .catch(() => {
-        if (ativo) setErro(true);
-      })
-      .finally(() => {
-        if (ativo) setBuscando(false);
-      });
-
-    return () => {
-      ativo = false;
-    };
-  }, [termo]);
+  };
 
   const escolher = (moeda: Moeda) => {
     onAdicionar(moeda);
     setTexto('');
-    setResultados([]);
+  };
+
+  const item = (moeda: Moeda) => {
+    const jaAdicionada = moedas.some((escolhida) => escolhida.id === moeda.id);
+    const longa = temNaBinance(moeda, pares);
+    return (
+      <li key={moeda.id}>
+        <button
+          type="button"
+          className="resultado"
+          role="option"
+          aria-selected={false}
+          disabled={jaAdicionada}
+          onClick={() => escolher(moeda)}
+        >
+          <Logo moeda={moeda} tamanho={24} />
+          <span className="resultado__nome">
+            {moeda.nome} <span className="muted">{moeda.simbolo}</span>
+          </span>
+          {jaAdicionada ? (
+            <span className="small muted">adicionada</span>
+          ) : (
+            <span className={`selo ${longa ? 'selo--longo' : ''}`}>{longa ? 'até 5 anos' : 'até 1 ano'}</span>
+          )}
+        </button>
+      </li>
+    );
   };
 
   const aberto = focado && texto.trim().length >= 2;
@@ -85,45 +121,42 @@ function SeletorMoedas({ moedas, onAdicionar, onRemover }: SeletorMoedasProps) {
           onChange={(evento) => setTexto(evento.target.value)}
           onKeyDown={(evento) => {
             if (evento.key === 'Escape') setTexto('');
-            if (evento.key === 'Enter' && resultados[0]) escolher(resultados[0]);
+            if (evento.key !== 'Enter') return;
+            if (locais[0]) escolher(locais[0]);
+            else if (remotos === null && !buscandoRemoto) buscarEmTodas();
           }}
         />
 
         {aberto && (
           <ul className="resultados" role="listbox">
-            {buscando && <li className="resultados__aviso">Buscando…</li>}
-            {!buscando && erro && (
-              <li className="resultados__aviso">A busca está indisponível agora. Tente de novo em um minuto.</li>
+            {locais.map(item)}
+
+            {remotos !== null && extras.length > 0 && (
+              <li className="resultados__titulo">Mais resultados na CoinGecko</li>
             )}
-            {!buscando && !erro && resultados.length === 0 && (
+            {extras.map(item)}
+
+            {remotos !== null && locais.length === 0 && extras.length === 0 && (
               <li className="resultados__aviso">Nenhuma moeda encontrada.</li>
             )}
-            {!buscando && !erro && resultados.map((moeda) => {
-              const jaAdicionada = moedas.some((item) => item.id === moeda.id);
-              const longa = temNaBinance(moeda, pares);
-              return (
-                <li key={moeda.id}>
-                  <button
-                    type="button"
-                    className="resultado"
-                    role="option"
-                    aria-selected={false}
-                    disabled={jaAdicionada}
-                    onClick={() => escolher(moeda)}
-                  >
-                    <Logo moeda={moeda} tamanho={24} />
-                    <span className="resultado__nome">
-                      {moeda.nome} <span className="muted">{moeda.simbolo}</span>
-                    </span>
-                    {jaAdicionada ? (
-                      <span className="small muted">adicionada</span>
-                    ) : (
-                      <span className={`selo ${longa ? 'selo--longo' : ''}`}>{longa ? 'até 5 anos' : 'até 1 ano'}</span>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
+            {erro && <li className="resultados__aviso resultados__aviso--erro">{MENSAGENS[erro]}</li>}
+
+            {remotos === null && (
+              <li>
+                <button
+                  type="button"
+                  className="resultados__mais"
+                  aria-busy={buscandoRemoto}
+                  // mantém o foco no campo pra lista não fechar
+                  onMouseDown={(evento) => evento.preventDefault()}
+                  onClick={() => !buscandoRemoto && buscarEmTodas()}
+                >
+                  {buscandoRemoto
+                    ? 'Buscando na CoinGecko…'
+                    : `${locais.length === 0 ? 'Não está entre as 500 maiores. ' : ''}Buscar "${texto.trim()}" em todas as moedas`}
+                </button>
+              </li>
+            )}
           </ul>
         )}
       </div>

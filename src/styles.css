@@ -778,3 +778,40 @@ input {
   padding-top: 14px;
   color: var(--muted);
 }
+
+.resultados__titulo {
+  padding: 10px 10px 4px;
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.resultados__aviso--erro {
+  color: var(--danger);
+}
+
+.resultados__mais {
+  width: 100%;
+  margin-top: 4px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  padding: 10px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.resultados__mais:hover {
+  background: var(--subtle);
+}
+
+.resultados__mais[aria-busy="true"] {
+  color: var(--muted);
+  cursor: default;
+}

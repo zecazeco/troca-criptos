@@ -1,17 +1,10 @@
-import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { Provider } from 'react-native-paper';
-import { theme } from './core/theme';
-
-import './config/firebase';
-
-import Home from './pages/Home';
-
-export default function Main() {
-  return (  
-    <Provider theme={theme}>
-      <StatusBar style="dark" />
-      <Home />
-    </Provider>
+function App() {
+  return (
+    <main>
+      <h1>Troca Criptos</h1>
+      <p>Compara criptomoedas com o bitcoin e o ethereum ao longo do tempo.</p>
+    </main>
   );
 }
+
+export default App;

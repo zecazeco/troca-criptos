@@ -32,7 +32,9 @@ function Ajuda({ onFechar }: AjudaProps) {
           <p>
             O selo <span className="sinal sinal--btc">Bom momento pra trocar por BTC</span> aparece
             quando o percentil passa do limite escolhido (80% por padrão). Os cards com o maior
-            percentil aparecem primeiro.
+            percentil aparecem primeiro. Se preferir outra ordem, arraste os cards pela alça
+            (os pontinhos no canto do card) ou use espaço e as setas do teclado. A ordem fica salva em
+            "Minha ordem".
           </p>
         </section>
 

@@ -12,7 +12,12 @@ function useMoedasSalvas() {
     setMoedas((atuais) => atuais.filter((item) => item.id !== id));
   };
 
-  return { moedas, adicionar, remover };
+  // salva a ordem escolhida arrastando os cards
+  const reordenar = (ids: string[]) => {
+    setMoedas((atuais) => ids.flatMap((id) => atuais.filter((item) => item.id === id)));
+  };
+
+  return { moedas, adicionar, remover, reordenar };
 }
 
 export default useMoedasSalvas;

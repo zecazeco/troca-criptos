@@ -815,3 +815,56 @@ input {
   color: var(--muted);
   cursor: default;
 }
+
+/* ordenar arrastando */
+.ordem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ordenavel {
+  position: relative;
+  display: flex;
+}
+
+.ordenavel > .card {
+  flex: 1;
+}
+
+.ordenavel--arrastando {
+  z-index: 5;
+}
+
+.ordenavel--arrastando > .card {
+  box-shadow: 0 16px 40px rgba(24, 24, 27, 0.16);
+  border-color: #d4d4d8;
+}
+
+.alca {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 32px;
+  margin-right: -6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--faint);
+  cursor: grab;
+  touch-action: none;
+}
+
+.alca:hover {
+  background: var(--subtle);
+  color: var(--text);
+}
+
+.alca:active {
+  cursor: grabbing;
+}
+
+.alca:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}

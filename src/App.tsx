@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import Card from './components/Card';
 import CardMoeda from './components/CardMoeda';
+import GradeOrdenavel from './components/GradeOrdenavel';
 import Header from './components/Header';
 import SeletorMoedas from './components/SeletorMoedas';
 import SeletorPeriodo from './components/SeletorPeriodo';
@@ -13,10 +14,11 @@ import { Periodo, pontuacao, recortar, resumir } from './lib/relacoes';
 const DetalheMoeda = lazy(() => import('./components/DetalheMoeda'));
 
 function App() {
-  const { moedas, adicionar, remover } = useMoedasSalvas();
+  const { moedas, adicionar, remover, reordenar } = useMoedasSalvas();
   const [periodo, setPeriodo] = useArmazenado<Periodo>('periodo', '1a');
   const { estados, tentarDeNovo } = useHistoricos(moedas);
   const [limite, setLimite] = useArmazenado('limite', 80);
+  const [ordem, setOrdem] = useArmazenado<'sinal' | 'minha'>('ordem', 'sinal');
   const [selecionada, setSelecionada] = useState<string | null>(null);
   const moedaSelecionada = moedas.find((moeda) => moeda.id === selecionada);
   const estadoSelecionado = selecionada ? estados[selecionada] : undefined;
@@ -25,7 +27,13 @@ function App() {
     const estado = estados[id];
     return estado?.status === 'ok' ? pontuacao(resumir(estado.serie, periodo)) : -1;
   };
-  const ordenadas = [...moedas].sort((a, b) => nota(b.id) - nota(a.id));
+  const ordenadas = ordem === 'minha' ? moedas : [...moedas].sort((a, b) => nota(b.id) - nota(a.id));
+
+  // arrastar um card passa a usar a ordem escolhida pela pessoa
+  const aoReordenar = (ids: string[]) => {
+    reordenar(ids);
+    setOrdem('minha');
+  };
 
   return (
     <div className="container">
@@ -59,20 +67,48 @@ function App() {
               </select>
               dos dias
             </label>
+            <div className="ordem small muted">
+              Ordenar por
+              <div className="segmentos" role="group" aria-label="Ordem dos cards">
+                <button
+                  type="button"
+                  className={`segmento ${ordem === 'sinal' ? 'segmento--ativo' : ''}`}
+                  aria-pressed={ordem === 'sinal'}
+                  onClick={() => setOrdem('sinal')}
+                >
+                  Melhor momento
+                </button>
+                <button
+                  type="button"
+                  className={`segmento ${ordem === 'minha' ? 'segmento--ativo' : ''}`}
+                  aria-pressed={ordem === 'minha'}
+                  title="Arraste os cards pela alça pra mudar a ordem"
+                  onClick={() => setOrdem('minha')}
+                >
+                  Minha ordem
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="grade">
-            {ordenadas.map((moeda) => (
-              <CardMoeda
-                key={moeda.id}
-                moeda={moeda}
-                estado={estados[moeda.id]}
-                periodo={periodo}
-                limite={limite}
-                onTentarDeNovo={() => tentarDeNovo(moeda.id)}
-                onAbrir={() => setSelecionada(moeda.id)}
-              />
-            ))}
-          </div>
+          <GradeOrdenavel
+            ids={ordenadas.map((moeda) => moeda.id)}
+            onReordenar={aoReordenar}
+            renderItem={(id, alca) => {
+              const moeda = moedas.find((item) => item.id === id);
+              if (!moeda) return null;
+              return (
+                <CardMoeda
+                  moeda={moeda}
+                  estado={estados[id]}
+                  periodo={periodo}
+                  limite={limite}
+                  alca={alca}
+                  onTentarDeNovo={() => tentarDeNovo(id)}
+                  onAbrir={() => setSelecionada(id)}
+                />
+              );
+            }}
+          />
         </>
       )}
 

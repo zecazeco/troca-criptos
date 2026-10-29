@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { Moeda } from '../types';
 import { EstadoHistorico } from '../hooks/useHistoricos';
 import { Metricas, Periodo, resumir } from '../lib/relacoes';
@@ -11,6 +12,7 @@ interface CardMoedaProps {
   estado: EstadoHistorico | undefined;
   periodo: Periodo;
   limite: number;
+  alca?: ReactNode;
   onTentarDeNovo: () => void;
   onAbrir: () => void;
 }
@@ -52,7 +54,7 @@ function LinhaRelacao({ base, dados }: LinhaRelacaoProps) {
   );
 }
 
-function CardMoeda({ moeda, estado, periodo, limite, onTentarDeNovo, onAbrir }: CardMoedaProps) {
+function CardMoeda({ moeda, estado, periodo, limite, alca, onTentarDeNovo, onAbrir }: CardMoedaProps) {
   const cabecalho = (preco?: number) => (
     <div className="moeda__cabecalho">
       <Logo moeda={moeda} tamanho={32} />
@@ -61,6 +63,7 @@ function CardMoeda({ moeda, estado, periodo, limite, onTentarDeNovo, onAbrir }: 
         <span className="small muted">{moeda.simbolo}</span>
       </div>
       {preco !== undefined && <span className="moeda__preco num">{formatarUsd(preco)}</span>}
+      {alca}
     </div>
   );
 

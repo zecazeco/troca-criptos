@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Moeda } from '../types';
 import { DiaRelacao } from '../lib/relacoes';
 import GraficoRelacao from './GraficoRelacao';
+import GraficoSobreposto from './GraficoSobreposto';
 import Logo from './Logo';
 
 interface DetalheMoedaProps {
@@ -39,6 +40,7 @@ function DetalheMoeda({ moeda, dias, onFechar }: DetalheMoedaProps) {
           </button>
         </div>
 
+        <GraficoSobreposto dias={dias} simbolo={moeda.simbolo} />
         <GraficoRelacao dias={dias} campo="relBtc" base="BTC" cor="#f7931a" />
         <GraficoRelacao dias={dias} campo="relEth" base="ETH" cor="#627eea" />
       </div>

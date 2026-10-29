@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { alinhar, metricas, recortar, DiaRelacao } from './relacoes';
+import { alinhar, metricas, normalizar, recortar, DiaRelacao } from './relacoes';
 
 function serieDias(inicio: string, quantidade: number, valor: (indice: number) => number): DiaRelacao[] {
   const data = new Date(`${inicio}T00:00:00Z`);
@@ -71,5 +71,19 @@ describe('metricas', () => {
 
   test('retorna null pra série vazia', () => {
     expect(metricas([], 'relBtc')).toBeNull();
+  });
+});
+
+describe('normalizar', () => {
+  test('começa as 3 moedas em 100 e mantém a variação de cada uma', () => {
+    const resultado = normalizar([
+      { dia: '2024-01-01', moeda: 2, btc: 40000, eth: 2000, relBtc: 0, relEth: 0 },
+      { dia: '2024-01-02', moeda: 3, btc: 20000, eth: 2200, relBtc: 0, relEth: 0 },
+    ]);
+
+    expect(resultado[0]).toEqual({ dia: '2024-01-01', moeda: 100, btc: 100, eth: 100 });
+    expect(resultado[1].moeda).toBeCloseTo(150);
+    expect(resultado[1].btc).toBeCloseTo(50);
+    expect(resultado[1].eth).toBeCloseTo(110);
   });
 });

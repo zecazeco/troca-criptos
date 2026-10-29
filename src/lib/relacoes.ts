@@ -97,3 +97,23 @@ export function metricas(serie: DiaRelacao[], campo: 'relBtc' | 'relEth'): Metri
     diaMin: serie[indiceMin].dia,
   };
 }
+
+export interface DiaBase100 {
+  dia: string;
+  moeda: number;
+  btc: number;
+  eth: number;
+}
+
+// põe as 3 moedas em base 100 no primeiro dia do período pra comparar a valorização
+export function normalizar(serie: DiaRelacao[]): DiaBase100[] {
+  if (serie.length === 0) return [];
+  const [primeiro] = serie;
+
+  return serie.map((item) => ({
+    dia: item.dia,
+    moeda: (item.moeda / primeiro.moeda) * 100,
+    btc: (item.btc / primeiro.btc) * 100,
+    eth: (item.eth / primeiro.eth) * 100,
+  }));
+}

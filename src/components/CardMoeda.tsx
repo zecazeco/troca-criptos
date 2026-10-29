@@ -1,6 +1,6 @@
 import { Moeda } from '../types';
 import { EstadoHistorico } from '../hooks/useHistoricos';
-import { metricas, Metricas, Periodo, recortar } from '../lib/relacoes';
+import { Metricas, Periodo, resumir } from '../lib/relacoes';
 import { formatarData, formatarPorcentagem, formatarRelacao, formatarUsd } from '../lib/formato';
 import Card from './Card';
 import Button from './Button';
@@ -10,6 +10,7 @@ interface CardMoedaProps {
   moeda: Moeda;
   estado: EstadoHistorico | undefined;
   periodo: Periodo;
+  limite: number;
   onTentarDeNovo: () => void;
   onAbrir: () => void;
 }
@@ -51,7 +52,7 @@ function LinhaRelacao({ base, dados }: LinhaRelacaoProps) {
   );
 }
 
-function CardMoeda({ moeda, estado, periodo, onTentarDeNovo, onAbrir }: CardMoedaProps) {
+function CardMoeda({ moeda, estado, periodo, limite, onTentarDeNovo, onAbrir }: CardMoedaProps) {
   const cabecalho = (preco?: number) => (
     <div className="moeda__cabecalho">
       <Logo moeda={moeda} tamanho={32} />
@@ -83,11 +84,9 @@ function CardMoeda({ moeda, estado, periodo, onTentarDeNovo, onAbrir }: CardMoed
     );
   }
 
-  const { dias, completo } = recortar(estado.serie, periodo);
-  const btc = metricas(dias, 'relBtc');
-  const eth = metricas(dias, 'relEth');
+  const resumo = resumir(estado.serie, periodo);
 
-  if (!btc || !eth) {
+  if (!resumo) {
     return (
       <Card className="moeda">
         {cabecalho()}
@@ -96,9 +95,24 @@ function CardMoeda({ moeda, estado, periodo, onTentarDeNovo, onAbrir }: CardMoed
     );
   }
 
+  const { dias, completo, btc, eth } = resumo;
+  const sinais = [
+    { base: 'BTC', ativo: btc.percentil >= limite },
+    { base: 'ETH', ativo: eth.percentil >= limite },
+  ].filter((sinal) => sinal.ativo);
+
   return (
-    <Card className="moeda">
+    <Card className={`moeda ${sinais.length > 0 ? 'moeda--sinal' : ''}`}>
       {cabecalho(dias[dias.length - 1].moeda)}
+      {sinais.length > 0 && (
+        <div className="sinais">
+          {sinais.map((sinal) => (
+            <span key={sinal.base} className={`sinal sinal--${sinal.base.toLowerCase()}`}>
+              Bom momento pra trocar por {sinal.base}
+            </span>
+          ))}
+        </div>
+      )}
       <LinhaRelacao base="BTC" dados={btc} />
       <LinhaRelacao base="ETH" dados={eth} />
       {!completo && (

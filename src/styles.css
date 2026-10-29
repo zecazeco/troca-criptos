@@ -597,3 +597,73 @@ input {
     padding: 16px;
   }
 }
+
+/* sinal de troca */
+.limite {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.limite__select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 6px;
+  background: var(--surface);
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.moeda--sinal {
+  border-color: #cfe7e3;
+  box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow);
+}
+
+.sinais {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -6px;
+}
+
+.sinal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sinal::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sinal--btc {
+  background: var(--btc-soft);
+  color: #b4630b;
+}
+
+.sinal--eth {
+  background: var(--eth-soft);
+  color: #4257b8;
+}
+
+.rodape {
+  display: grid;
+  gap: 4px;
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.rodape strong {
+  color: var(--text);
+  font-weight: 600;
+}

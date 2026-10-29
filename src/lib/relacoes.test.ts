@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { alinhar, metricas, normalizar, recortar, DiaRelacao } from './relacoes';
+import { alinhar, metricas, normalizar, pontuacao, recortar, resumir, DiaRelacao } from './relacoes';
 
 function serieDias(inicio: string, quantidade: number, valor: (indice: number) => number): DiaRelacao[] {
   const data = new Date(`${inicio}T00:00:00Z`);
@@ -85,5 +85,23 @@ describe('normalizar', () => {
     expect(resultado[1].moeda).toBeCloseTo(150);
     expect(resultado[1].btc).toBeCloseTo(50);
     expect(resultado[1].eth).toBeCloseTo(110);
+  });
+});
+
+describe('resumir e pontuacao', () => {
+  test('usa o maior percentil entre btc e eth', () => {
+    const serie = serieDias('2024-01-01', 10, (indice) => indice).map((item, indice) => ({
+      ...item,
+      relEth: 10 - indice,
+    }));
+    const resumo = resumir(serie, '1a');
+
+    expect(resumo?.btc.percentil).toBe(100);
+    expect(resumo?.eth.percentil).toBe(10);
+    expect(pontuacao(resumo)).toBe(100);
+  });
+
+  test('pontuação -1 quando não tem dados', () => {
+    expect(pontuacao(resumir([], '1a'))).toBe(-1);
   });
 });

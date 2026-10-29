@@ -117,3 +117,22 @@ export function normalizar(serie: DiaRelacao[]): DiaBase100[] {
     eth: (item.eth / primeiro.eth) * 100,
   }));
 }
+
+export interface Resumo {
+  dias: DiaRelacao[];
+  completo: boolean;
+  btc: Metricas;
+  eth: Metricas;
+}
+
+export function resumir(serie: DiaRelacao[], periodo: Periodo): Resumo | null {
+  const { dias, completo } = recortar(serie, periodo);
+  const btc = metricas(dias, 'relBtc');
+  const eth = metricas(dias, 'relEth');
+  return btc && eth ? { dias, completo, btc, eth } : null;
+}
+
+// moedas com o percentil mais alto (mais perto do melhor momento de troca) vêm primeiro
+export function pontuacao(resumo: Resumo | null) {
+  return resumo ? Math.max(resumo.btc.percentil, resumo.eth.percentil) : -1;
+}

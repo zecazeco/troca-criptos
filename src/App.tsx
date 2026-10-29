@@ -1,3 +1,4 @@
+import { lazy, Suspense, useState } from 'react';
 import Card from './components/Card';
 import CardMoeda from './components/CardMoeda';
 import Header from './components/Header';
@@ -6,12 +7,18 @@ import SeletorPeriodo from './components/SeletorPeriodo';
 import useArmazenado from './hooks/useArmazenado';
 import useHistoricos from './hooks/useHistoricos';
 import useMoedasSalvas from './hooks/useMoedasSalvas';
-import { Periodo } from './lib/relacoes';
+import { Periodo, recortar } from './lib/relacoes';
+
+// os gráficos só carregam quando abre o detalhe de uma moeda
+const DetalheMoeda = lazy(() => import('./components/DetalheMoeda'));
 
 function App() {
   const { moedas, adicionar, remover } = useMoedasSalvas();
   const [periodo, setPeriodo] = useArmazenado<Periodo>('periodo', '1a');
   const { estados, tentarDeNovo } = useHistoricos(moedas);
+  const [selecionada, setSelecionada] = useState<string | null>(null);
+  const moedaSelecionada = moedas.find((moeda) => moeda.id === selecionada);
+  const estadoSelecionado = selecionada ? estados[selecionada] : undefined;
 
   return (
     <div className="container">
@@ -46,10 +53,21 @@ function App() {
                 estado={estados[moeda.id]}
                 periodo={periodo}
                 onTentarDeNovo={() => tentarDeNovo(moeda.id)}
+                onAbrir={() => setSelecionada(moeda.id)}
               />
             ))}
           </div>
         </>
+      )}
+
+      {moedaSelecionada && estadoSelecionado?.status === 'ok' && (
+        <Suspense fallback={null}>
+          <DetalheMoeda
+            moeda={moedaSelecionada}
+            dias={recortar(estadoSelecionado.serie, periodo).dias}
+            onFechar={() => setSelecionada(null)}
+          />
+        </Suspense>
       )}
     </div>
   );

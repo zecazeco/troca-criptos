@@ -11,6 +11,7 @@ interface CardMoedaProps {
   estado: EstadoHistorico | undefined;
   periodo: Periodo;
   onTentarDeNovo: () => void;
+  onAbrir: () => void;
 }
 
 interface LinhaRelacaoProps {
@@ -50,7 +51,7 @@ function LinhaRelacao({ base, dados }: LinhaRelacaoProps) {
   );
 }
 
-function CardMoeda({ moeda, estado, periodo, onTentarDeNovo }: CardMoedaProps) {
+function CardMoeda({ moeda, estado, periodo, onTentarDeNovo, onAbrir }: CardMoedaProps) {
   const cabecalho = (preco?: number) => (
     <div className="moeda__cabecalho">
       <Logo moeda={moeda} tamanho={32} />
@@ -107,6 +108,7 @@ function CardMoeda({ moeda, estado, periodo, onTentarDeNovo }: CardMoedaProps) {
             : `Histórico disponível só desde ${formatarData(dias[0].dia)}.`}
         </p>
       )}
+      <Button variant="ghost" className="moeda__graficos" onClick={onAbrir}>Ver gráficos</Button>
     </Card>
   );
 }

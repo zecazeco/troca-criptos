@@ -667,3 +667,114 @@ input {
   color: var(--text);
   font-weight: 600;
 }
+
+/* ajuda */
+.header__direita {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header__ajuda {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.header__ajuda:hover {
+  color: var(--text);
+  background: var(--subtle);
+}
+
+.detalhe--ajuda {
+  width: min(680px, calc(100% - 32px));
+}
+
+.ajuda {
+  display: grid;
+  gap: 22px;
+  font-size: 14px;
+  color: #3f3f46;
+}
+
+.ajuda h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ajuda p + p {
+  margin-top: 8px;
+}
+
+.ajuda ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.ajuda strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ajuda .sinal {
+  vertical-align: 1px;
+}
+
+.ajuda__destaque {
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: var(--accent-soft);
+}
+
+.ajuda__formula {
+  margin-top: 8px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--subtle);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 13px;
+}
+
+.ajuda__tabela {
+  width: 100%;
+  margin: 10px 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ajuda__tabela th,
+.ajuda__tabela td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.ajuda__tabela thead th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.ajuda__tabela tbody th {
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.ajuda__aviso {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  color: var(--muted);
+}

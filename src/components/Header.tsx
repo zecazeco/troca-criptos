@@ -1,4 +1,9 @@
+import { useState } from 'react';
+import Ajuda from './Ajuda';
+
 function Header() {
+  const [ajudaAberta, setAjudaAberta] = useState(false);
+
   return (
     <header className="header">
       <div className="brand">
@@ -9,7 +14,19 @@ function Header() {
         </span>
         Troca Criptos
       </div>
-      <span className="header__tagline">Compare com BTC e ETH ao longo do tempo</span>
+      <div className="header__direita">
+        <span className="header__tagline">Compare com BTC e ETH ao longo do tempo</span>
+        <button
+          type="button"
+          className="header__ajuda"
+          aria-label="Ajuda: como usar e como ler os gráficos"
+          title="Ajuda"
+          onClick={() => setAjudaAberta(true)}
+        >
+          ?
+        </button>
+      </div>
+      {ajudaAberta && <Ajuda onFechar={() => setAjudaAberta(false)} />}
     </header>
   );
 }

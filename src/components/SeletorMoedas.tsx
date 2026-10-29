@@ -4,6 +4,7 @@ import { buscar } from '../services/coingecko';
 import { paresDisponiveis } from '../services/binance';
 import { temNaBinance } from '../services/precos';
 import useDebounce from '../hooks/useDebounce';
+import Logo from './Logo';
 
 interface SeletorMoedasProps {
   moedas: Moeda[];
@@ -110,7 +111,7 @@ function SeletorMoedas({ moedas, onAdicionar, onRemover }: SeletorMoedasProps) {
                     disabled={jaAdicionada}
                     onClick={() => escolher(moeda)}
                   >
-                    <img className="logo" src={moeda.logo} alt="" width="24" height="24" />
+                    <Logo moeda={moeda} tamanho={24} />
                     <span className="resultado__nome">
                       {moeda.nome} <span className="muted">{moeda.simbolo}</span>
                     </span>
@@ -131,7 +132,7 @@ function SeletorMoedas({ moedas, onAdicionar, onRemover }: SeletorMoedasProps) {
         <ul className="chips">
           {moedas.map((moeda) => (
             <li key={moeda.id} className="chip">
-              <img className="logo" src={moeda.logo} alt="" width="18" height="18" />
+              <Logo moeda={moeda} tamanho={18} />
               {moeda.simbolo}
               <button type="button" className="chip__remover" aria-label={`Remover ${moeda.nome}`} onClick={() => onRemover(moeda.id)}>
                 ×

@@ -1,10 +1,17 @@
 import Card from './components/Card';
+import CardMoeda from './components/CardMoeda';
 import Header from './components/Header';
 import SeletorMoedas from './components/SeletorMoedas';
+import SeletorPeriodo from './components/SeletorPeriodo';
+import useArmazenado from './hooks/useArmazenado';
+import useHistoricos from './hooks/useHistoricos';
 import useMoedasSalvas from './hooks/useMoedasSalvas';
+import { Periodo } from './lib/relacoes';
 
 function App() {
   const { moedas, adicionar, remover } = useMoedasSalvas();
+  const [periodo, setPeriodo] = useArmazenado<Periodo>('periodo', '1a');
+  const { estados, tentarDeNovo } = useHistoricos(moedas);
 
   return (
     <div className="container">
@@ -17,7 +24,7 @@ function App() {
 
       <SeletorMoedas moedas={moedas} onAdicionar={adicionar} onRemover={remover} />
 
-      {moedas.length === 0 && (
+      {moedas.length === 0 ? (
         <Card className="vazio">
           <h2 className="card__title">Comece adicionando uma moeda</h2>
           <p className="muted">
@@ -25,6 +32,24 @@ function App() {
             navegador, ninguém mais vê quais moedas você escolheu.
           </p>
         </Card>
+      ) : (
+        <>
+          <div className="barra">
+            <span className="small muted">Comparando nos últimos</span>
+            <SeletorPeriodo periodo={periodo} onMudar={setPeriodo} />
+          </div>
+          <div className="grade">
+            {moedas.map((moeda) => (
+              <CardMoeda
+                key={moeda.id}
+                moeda={moeda}
+                estado={estados[moeda.id]}
+                periodo={periodo}
+                onTentarDeNovo={() => tentarDeNovo(moeda.id)}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

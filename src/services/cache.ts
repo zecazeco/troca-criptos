@@ -5,8 +5,20 @@ interface Guardado<T> {
   valor: T;
 }
 
+// buscas em andamento, pra várias moedas não pedirem o histórico do btc ao mesmo tempo
+const emAndamento = new Map<string, Promise<unknown>>();
+
 // guarda o resultado no sessionStorage pra não repetir chamadas nas APIs
-export async function comCache<T>(chave: string, buscar: () => Promise<T>, validade = SEIS_HORAS): Promise<T> {
+export function comCache<T>(chave: string, buscar: () => Promise<T>, validade = SEIS_HORAS): Promise<T> {
+  const pendente = emAndamento.get(chave) as Promise<T> | undefined;
+  if (pendente) return pendente;
+
+  const promessa = lerOuBuscar(chave, buscar, validade).finally(() => emAndamento.delete(chave));
+  emAndamento.set(chave, promessa);
+  return promessa;
+}
+
+async function lerOuBuscar<T>(chave: string, buscar: () => Promise<T>, validade: number): Promise<T> {
   const chaveCompleta = `troca-criptos:cache:${chave}`;
 
   try {

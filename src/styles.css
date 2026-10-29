@@ -339,3 +339,178 @@ input {
   max-width: 440px;
   margin: 6px auto 0;
 }
+
+/* período */
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.segmentos {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--subtle);
+  border: 1px solid var(--border);
+}
+
+.segmento {
+  border: 0;
+  border-radius: 7px;
+  padding: 5px 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.segmento:hover {
+  color: var(--text);
+}
+
+.segmento--ativo {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.08);
+}
+
+/* cards das moedas */
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+}
+
+.moeda {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.moeda__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.moeda__nome {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.moeda__preco {
+  font-weight: 600;
+}
+
+.relacao {
+  --cor: var(--btc);
+  --cor-suave: var(--btc-soft);
+}
+
+.relacao--eth {
+  --cor: var(--eth);
+  --cor-suave: var(--eth-soft);
+}
+
+.relacao__topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.relacao__base {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.ponto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor);
+}
+
+.relacao__valor {
+  font-weight: 600;
+}
+
+.faixa {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cor-suave);
+}
+
+.faixa__preenchida {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--cor);
+  opacity: 0.35;
+}
+
+.faixa__marcador {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 3px solid var(--cor);
+  transform: translate(-50%, -50%);
+}
+
+.relacao__rodape {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.aviso {
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--subtle);
+  color: var(--muted);
+}
+
+.aviso--erro {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.esqueleto {
+  height: 46px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--subtle) 0%, #efeff1 50%, var(--subtle) 100%);
+  background-size: 200% 100%;
+  animation: brilho 1.4s ease-in-out infinite;
+}
+
+@keyframes brilho {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.logo--iniciais {
+  display: inline-grid;
+  place-items: center;
+  background: var(--subtle);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
